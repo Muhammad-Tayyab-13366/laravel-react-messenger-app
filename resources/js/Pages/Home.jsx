@@ -16,6 +16,8 @@ function Home({messages=null, selectedConversation=null}) {
     const loadMoreIntersect = useRef(null);
     const [scrollFromBottom, setScrollFromBottom] = useState();
     const [noMoreMessages, setnoMoreMessages] = useState(false);
+    const [showAttachmentPreview, setShowAttachmentPreview] = useState(false);
+    const [previewAttachment, setPreviewAttachment] = useState({});
     const { on } = useEventBus();
 
     const loadMoreMessages = useCallback(() => {
@@ -52,7 +54,13 @@ function Home({messages=null, selectedConversation=null}) {
         }
     }
 
-    
+    const onAttachmentClick = (attchments, ind) => {
+        setPreviewAttachment({
+            attchments, 
+            ind
+        });
+        setShowAttachmentPreview(true);
+    }
     
     useEffect(() => {
         if(messagesCtrRef.current && scrollFromBottom !== null){
@@ -142,6 +150,15 @@ function Home({messages=null, selectedConversation=null}) {
                 </div>
                 <MessageInput conversation={selectedConversation} />
                 </>
+            )}
+
+            {previewAttachment.attchments && (
+                <AttchmentsPreviewModal 
+                    attchments={previewAttachment.attchments} 
+                    index={previewAttachment.ind}
+                    show={showAttachmentPreview}
+                    onClose={() => setShowAttachmentPreview(false)}
+                />
             )}
         </>
         
