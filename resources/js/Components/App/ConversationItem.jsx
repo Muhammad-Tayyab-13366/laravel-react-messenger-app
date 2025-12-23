@@ -39,6 +39,7 @@ const ConversationItem = ({
           <div className="flex-1 min-w-0 text-xs overflow-hidden">
             <div className="flex justify-between items-center gap-1">
               <h3 className="text-sm font-semibold truncate">{conversation.name}</h3>
+              
               {conversation.last_message_date && (
                 <span className="text-xs whitespace-nowrap">{formatMessageDateShort(conversation.last_message_date)}</span>
               )}

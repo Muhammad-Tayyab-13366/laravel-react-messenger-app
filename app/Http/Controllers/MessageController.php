@@ -72,7 +72,9 @@ class MessageController extends Controller
 
     public function store(StoreMessageRequest $request)
     {
+       
         $data = $request->validated();
+       
         $data['sender_id'] = Auth::user()->id;
         $receiver_id = $data['receiver_id'] ?? null;
         $group_id = $data['group_id'] ?? null;
@@ -83,7 +85,8 @@ class MessageController extends Controller
 
         if($files){
             foreach ($files as $key => $file) {
-                $directory = "attachments/".Str::random(32);
+                $directory = "attachments/".Str::random(32).time();
+            
                 Storage::makeDirectory($directory);
 
                 $model = [
@@ -94,7 +97,7 @@ class MessageController extends Controller
                     "path" => $file->store($directory, "public")
                 ];
 
-                $attachment = MessageAttachment::created($model);
+                $attachment = MessageAttachment::create($model);
                 $attachments[] = $attachment;
             }
             $message->attchments = $attachments;
@@ -117,11 +120,37 @@ class MessageController extends Controller
 
     public function destroy(Message $message)
     {
-        if($message->sender_id !== auth()->id()){
+        $lastMessage = [];
+        if($message->sender_id !== Auth::user()->id){
             return response()->json(['message' => 'Forbidden'], 403);
         }
 
+      
+        $group = null;
+        $conversation = null;
+
+        if($message->group_id){
+
+            $group = Group::where('last_message_id', $message->id)->first();
+        }
+        else 
+        {
+            $conversation = Conversation::where("last_message_id", $message->id)->first();
+        }
+
         $message->delete();
-        return response('', 204);
+       
+        if($group){
+            $group = Group::find($group->id);
+            $lastMessage = $group->lastMessage;
+        }else if($conversation){
+            $conversation = Conversation::find($conversation->id);
+            $lastMessage = $conversation->lastMessage;
+        }
+
+        
+        return response([
+            "message" => $lastMessage ? new MessageResource($lastMessage) : null
+        ]);
     }
 }

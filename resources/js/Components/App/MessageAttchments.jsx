@@ -3,15 +3,17 @@ import { ArrowDownTrayIcon, PaperClipIcon, PlayCircleIcon } from "@heroicons/rea
 
 const MessageAttachments = ({attachments = [] , attachmentClick}) => {
 
-    console.log(attachments);
+
     return (
         <>
         {attachments.length > 0 && (
                 <div className="mt-2 flex flex-wrap justify-end gap-1">
-                    {attachments.map(() => {
+                    {attachments.map((attachment, indx) => {
+                       
                         return (
+                            
                             <div
-                                onClick={(ev) => attachmentClick(attachments)}
+                                onClick={(ev) => attachmentClick(attachments, indx)}
                                 key={attachment.id}
                                 className={`group flex flex-col items-center justify-center text-gray-500 relative cursor-pointer ${isAudio(attachment) ? "w-84" : "w-32 aspect-square bg-blue-100"}`}
                             >
@@ -25,9 +27,9 @@ const MessageAttachments = ({attachments = [] , attachmentClick}) => {
                                     </a>
                                 )}
 
-                                {isImage(attachment) && (
+                                {isImage(attachment) && (<>
                                     <img src={attachment.url}
-                                    className="object-contain sspect-square" alt="" />
+                                    className="object-contain sspect-square" alt="" /></>
                                 )}
                                 {isVideo(attachment) && (
                                     <div className="relative flex justify-center items-center">
@@ -61,7 +63,7 @@ const MessageAttachments = ({attachments = [] , attachmentClick}) => {
                                         className="flex flex-col justify-center items-center">
                                         <PaperClipIcon className="w-10 h-10 mb-3" />
 
-                                        <small>{attachment.name}</small>
+                                        <small className="text-center">{attachment.name}</small>
                                     </a>
                                 )}
                             </div>

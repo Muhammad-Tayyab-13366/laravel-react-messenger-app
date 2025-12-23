@@ -7,6 +7,9 @@ import { Popover, PopoverPanel, Transition } from '@headlessui/react';
 import { Fragment } from 'react'
 import { isAudio, isImage } from "@/helpers";
 import AttachmentPreview from "./AttchmentPreview";
+import CustomAudioPlayer from "./CustomAudioPlayer";
+import AudioRecorder from "./AudioRecorder";
+import { useEventBus } from "@/EventBus";
 
 const MessageInput = ({conversation = null}) => {
     const [newMessage, setNewMessage] = useState("");
@@ -14,7 +17,7 @@ const MessageInput = ({conversation = null}) => {
     const [messageSending, setMessageSending] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [chosenFiles, setChosenFiles] = useState([]);
-
+    const {emit} = useEventBus();
     const onFileChange = (ev) => {
         const files = ev.target.files; 
 
@@ -24,6 +27,7 @@ const MessageInput = ({conversation = null}) => {
                 url: URL.createObjectURL(file),
             };
         });
+        ev.target.value = null;
         setChosenFiles((prevFiles) => {
             return [...prevFiles, ...updatedFiles];
         });
@@ -49,13 +53,20 @@ const MessageInput = ({conversation = null}) => {
 
     }
     const onSendClick = () => {
-        if(newMessage.trim() === ""){
+
+        
+        if(messageSending){
+            return;
+        }
+
+        if(newMessage.trim() === "" && chosenFiles.length === 0){
             setInputErrorMessage("Please provide a message or upload the attachments. ")
             setTimeout(() => {
                 setInputErrorMessage("")
             }, 3000)
             return;
         }
+    
 
         const  formData = new FormData();
 
@@ -99,6 +110,17 @@ const MessageInput = ({conversation = null}) => {
             
         });
     }
+
+    const recordedAudioReady = (file, url) => {
+        setChosenFiles((prevFiles) => {
+            return [
+                ...prevFiles, {
+                    file:file,
+                    url: url
+                }
+            ]
+        })
+    }
     
     return (
         <div className="flex flex-wrap items-start border-t border-slate-700 py-3">
@@ -111,6 +133,7 @@ const MessageInput = ({conversation = null}) => {
                     <PhotoIcon className="w-6" />
                     <input type="file" multiple accept="image/*" className="absolute left-0 top-0 right-0 bottom-0 z-20 opacity-0 cursor-pointer" onChange={onFileChange} />
                 </button>
+                <AudioRecorder fileReady={recordedAudioReady}/>
             </div>
             
             <div className="order-1 px-3 xs:p-0 min-w-[200px] basis-full xs:basis-0 xs:order-2 flex-1 relative">

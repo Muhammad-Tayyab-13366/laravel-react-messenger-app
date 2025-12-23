@@ -8,6 +8,7 @@ import { Head } from '@inertiajs/react';
 import { use, useCallback, useEffect, useRef, useState } from 'react';
 import { useEventBus } from '@/EventBus';
 import axios from 'axios';
+import AttchmentsPreviewModal from '@/Components/App/AttchmentsPreviewModal';
 
 function Home({messages=null, selectedConversation=null}) {
     //console.log("messages", messages);
@@ -34,7 +35,7 @@ function Home({messages=null, selectedConversation=null}) {
 
             const tmpScrollFromBottom = scrollHeight - scrollTop - clientHeight;
 
-            console.log("tmpScrollFromBottom", tmpScrollFromBottom);
+            
             setScrollFromBottom(tmpScrollFromBottom);
 
             setLocalMessages((prevMessage) => {
@@ -55,6 +56,7 @@ function Home({messages=null, selectedConversation=null}) {
     }
 
     const onAttachmentClick = (attchments, ind) => {
+        
         setPreviewAttachment({
             attchments, 
             ind
@@ -62,6 +64,22 @@ function Home({messages=null, selectedConversation=null}) {
         setShowAttachmentPreview(true);
     }
     
+    const messageDeleted = ({message, prevMessage}) => {
+        
+        if(selectedConversation && selectedConversation.is_group && selectedConversation.id == message.group_id){
+            setLocalMessages((prevMessage) => {
+                return prevMessage.filter((m) => m.id !== message.id)
+            });
+        }
+
+        if(selectedConversation && selectedConversation.is_user 
+            && (selectedConversation.id == message.sender_id || selectedConversation.id == message.receiver_id)){
+            setLocalMessages((prevMessage) => {
+                return prevMessage.filter((m) => m.id !== message.id)
+            });
+        }
+    }
+
     useEffect(() => {
         if(messagesCtrRef.current && scrollFromBottom !== null){
             messagesCtrRef.current.scrollTop = 
@@ -103,6 +121,7 @@ function Home({messages=null, selectedConversation=null}) {
         },10);
 
         const offCreated = on("message.created", messageCreated);
+        const offDeletted = on("message.deleted", messageDeleted);
         setScrollFromBottom(0);
         setnoMoreMessages(false)
         return () => {
@@ -114,6 +133,8 @@ function Home({messages=null, selectedConversation=null}) {
     useEffect(()=>{
         setLocalMessages(messages ? messages.data.reverse() : []);
     }, [messages]);
+
+    
     return (
         <>
             {!messages && (
@@ -141,7 +162,7 @@ function Home({messages=null, selectedConversation=null}) {
                             <div  ref={loadMoreIntersect}></div>
                             {
                                 localMessages.map((message) => {
-                                    return <MessageItem key={message.id} message={message} />
+                                    return <MessageItem key={message.id} message={message} attachmentClick={onAttachmentClick}/>
                                 })
                             }
                         </div>
@@ -154,10 +175,11 @@ function Home({messages=null, selectedConversation=null}) {
 
             {previewAttachment.attchments && (
                 <AttchmentsPreviewModal 
-                    attchments={previewAttachment.attchments} 
+                    attachments={previewAttachment.attchments} 
                     index={previewAttachment.ind}
                     show={showAttachmentPreview}
                     onClose={() => setShowAttachmentPreview(false)}
+                    
                 />
             )}
         </>

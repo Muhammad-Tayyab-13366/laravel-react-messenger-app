@@ -1,5 +1,5 @@
 import { isAudio, isImage, isPDF, isPreviewable, isVideo } from "@/helpers";
-import { Transition } from "@headlessui/react";
+import { Dialog, Transition } from "@headlessui/react";
 import { ChevronLeftIcon, ChevronRightIcon, PaperClipIcon, XMarkIcon } from "@heroicons/react/24/solid";
 import { Fragment, useEffect, useMemo, useState } from "react";
 
@@ -9,14 +9,26 @@ const AttchmentsPreviewModal = ({attachments,
     onClose = () => { }
 }) => {
 
+    console.log(attachments)
     const [currentIndex, setCurrentIndex] = useState(0);
     const attachment = useMemo(() => {
+       
         return attachments[currentIndex];
     }, [attachments, currentIndex]);
 
+    
+    
     const previewableAttachments = useMemo(() => {
         return attachments.filter((attachment) => isPreviewable(attachment));
     }, [attachments]);
+
+    console.log(previewableAttachments)
+    // const attachment = useMemo(
+    //     () => previewableAttachments[currentIndex],
+    //     [previewableAttachments, currentIndex]
+    // );
+
+    // console.log("p", attachment)
 
     const close = () => {
         onClose();
@@ -80,9 +92,9 @@ const AttchmentsPreviewModal = ({attachments,
                                 </div>
                             )}
 
-                            {currentIndex < previewableAttachments.lenght -1 && (
+                            {currentIndex < previewableAttachments.length -1 && (
                                 <div
-                                    onClick={prev}
+                                    onClick={next}
                                     className="absolute opacity-100 text-gray-100 cursor-pointer flex items-center justify-center w-16 h-16 right-4 top-1/2 -translate-y-1/2 rounded-full bg:black/50 z-30">
                                         <ChevronRightIcon className="w-12"/>
                                 </div>
@@ -120,16 +132,6 @@ const AttchmentsPreviewModal = ({attachments,
 
                                 </div>
                             )}
-                        </div>
-
-                        <div className="mt-4">
-                            <button
-                            type="button"
-                            className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-                            onClick={closeModal}
-                            >
-                            Got it, thanks!
-                            </button>
                         </div>
                     </Dialog.Panel>
                 </Transition.Child>

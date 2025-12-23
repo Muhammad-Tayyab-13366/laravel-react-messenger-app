@@ -3,10 +3,11 @@ import { use, useRef, useState } from "react";
 
 const CustomAudioPlayer = ({file, showVolume = true}) => {
 
+    console.log(file)
     const audioRef = useRef();
     const [isPlaying, setIsPlaying] = useState(false);
     const [duration, setDuration] = useState(0);
-    const [volume, setVloume] = useState(1);
+    const [volume, setVloume] = useState(0);
     const [currentTime, setCurrentTime] = useState(0);
 
     const togglePlayPause = () => {
@@ -50,19 +51,19 @@ const CustomAudioPlayer = ({file, showVolume = true}) => {
                 controls
                 onTimeUpdate={handleTimeUpdate}
                 onLoadedMetadata={handleLoadedMetadata}
-                className="hidden"
+                className=""
                 >
 
             </audio>
 
-            <button onClick={togglePlayPause} className="w-6 text-gray-400">
+            {/* <button onClick={togglePlayPause} className="w-6 text-gray-400">
                 {isPlaying && <PauseCircleIcon className="w-6 text-gray-400" />}
                 {isPlaying && <PlayCircleIcon className="w-6 text-gray-400" />}
             </button>
             {showVolume && (
                 <input type="range" min="0" max="1" step="0.01" name="" id="" value={volume} onChange={handleVolumeChange}/>
-            )}
-            <input className="flex-1" type="range" min="0" max={duration} step="0.01" name="" id="" value={currentTime} onChange={handleSeekChange}/>
+            )} */}
+            {/* <input className="flex-1" type="range" min="0" max={duration} step="0.01" name="" id="" value={currentTime} onChange={handleSeekChange}/> */}
             
             
         </div>
