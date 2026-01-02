@@ -14,7 +14,7 @@ const MessageItem = ({message, attachmentClick}) => {
         <div className={`chat ${(message.sender_id === currentUser.id) ? "chat-end" : "chat-start" } mt-3`}>
             {<UserAvatar user={message.sender} />} 
 
-            <div className="chat-header"> 
+            <div className="chat-header text-gray-300"> 
                 {message.sender_id !== currentUser.id ? message.sender.name : ""}
                 
                 <time className="text-xs opacity-50 ml-2">

@@ -24,8 +24,8 @@ export default function Toast({}){
         <div className="toast min-w-[280px] z-10 toast-top toast-end">
             {toasts.map((toast, index) => {
                 return (
-                    <div key={toast.uuid} className="alert alert-success py-3 px-4 text-gray-100 rounded-md">
-                        <span className="text-3xl">{toast.message}</span>
+                    <div key={toast.uuid} className="alert alert-success py-3 px-4 text-gray-100 rounded-md z-10 mb-3 shadow-lg">
+                        <span className="text-xl">{toast.message}</span>
                     </div>
                 )
             })}

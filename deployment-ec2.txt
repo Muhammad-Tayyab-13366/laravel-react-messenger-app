@@ -1,0 +1,94 @@
+================== Server Setup (Base) ==================
+sudo apt update && sudo apt upgrade -y
+sudo apt install -y nginx unzip git curl supervisor
+
+
+================== Install PHP 8.2 + Extensions ================== 
+sudo apt install -y software-properties-common
+sudo add-apt-repository ppa:ondrej/php
+
+
+sudo apt install -y php8.2 php8.2-fpm php8.2-cli php8.2-mysql \
+php8.2-xml php8.2-mbstring php8.2-curl php8.2-zip php8.2-bcmath
+
+
+================== Install Composer ================== 
+curl -sS https://getcomposer.org/installer | php
+sudo mv composer.phar /usr/local/bin/composer
+
+
+================== Install Node.js (for Vite build) ================== 
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt install -y nodejs
+
+================== Install MYSQL ================== 
+sudo apt update
+sudo apt install mysql-server -y
+
+CREATE DATABASE laravel_react_messanger CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'chat_user'@'localhost' IDENTIFIED BY 'tayyab12345';
+GRANT ALL PRIVILEGES ON laravel_react_messanger.* TO 'chat_user'@'localhost';
+FLUSH PRIVILEGES;
+EXIT;
+
+================== Install git and setup project ================== 
+sudo apt update
+sudo apt install git -y
+
+Generate SSH KEY AND ADD 
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/id_rsa
+
+sudo chown -R www-data:www-data /var/www/chat-app
+cd /var/www/chat-app
+
+composer install --no-dev --optimize-autoloader
+npm install
+npm run build
+
+cp .env.example .env
+php artisan key:generate
+
+sudo chown -R www-data:www-data storage bootstrap/cache public/build
+sudo chmod -R 775 storage bootstrap/cache public/build
+
+
+
+================== Nginx Configuration ================== 
+
+sudo nano /etc/nginx/sites-available/laravel_react_messanger
+server {
+    listen 80;
+    server_name 98.91.206.17;
+
+    root /var/www/laravel-react-messenger-app/public;
+    index index.php;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/run/php/php8.2-fpm.sock;
+    }
+
+        deny all;
+    }
+}
+
+Enable:
+sudo ln -s /etc/nginx/sites-available/laravel_react_messanger /etc/nginx/sites-enabled/
+sudo nginx -t
+
+Disable Default Site (IMPORTANT)
+This is why you see the Nginx welcome page.
+sudo rm /etc/nginx/sites-enabled/default
+sudo systemctl restart nginx
+
+
+
+
+
+
+

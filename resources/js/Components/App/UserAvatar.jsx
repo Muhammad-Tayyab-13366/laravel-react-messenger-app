@@ -1,5 +1,6 @@
 const UserAvatar = ({ user, online = null, profile = false }) => {
 
+    console.log('UserAvatar user:', user);
     let onlineClass = "";
     if (online === true) onlineClass = "avatar-online";
     if (online === false) onlineClass = "avatar-offline";

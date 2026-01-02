@@ -2,9 +2,12 @@ import { Menu, Transition } from "@headlessui/react";
 import { Fragment  } from 'react'
 import { EllipsisVerticalIcon, LockClosedIcon, LockOpenIcon, ShieldCheckIcon, UserIcon } from "@heroicons/react/24/solid";
 import axios from "axios";
+import { useEventBus } from "@/EventBus";
 
 export default function UserOptionsDropdown({conversation}){
 
+    console.log("conversation", conversation);
+    const {emit} = useEventBus();   
     const changeUserRole = () => {
         if(!conversation.is_user){
             return
@@ -12,7 +15,12 @@ export default function UserOptionsDropdown({conversation}){
 
         axios.post(route('user.changeRole', conversation.id))
         .then((res)=>{
-            console.log(res.data);
+            
+            emit("toast.show", `${res.data.message}`);
+            emit("conversation.updated.role", {
+                id: conversation.id,
+                is_admin: res.data.is_admin
+            });
         })
         .catch((error)=>{
             console.error(error);
@@ -26,7 +34,11 @@ export default function UserOptionsDropdown({conversation}){
 
         axios.post(route('user.blockUnblock', conversation.id))
         .then((res) => {
-
+            emit("toast.show", `${res.data.message}`);
+            emit("conversation.updated.block_unblock", {
+                id: conversation.id,
+                blocked_at: res.data.blocked_at
+            });
         })
         .catch((err) => {
 
@@ -50,14 +62,14 @@ export default function UserOptionsDropdown({conversation}){
                     leaveFrom="transform opacity-100 scale-100"
                     leaveTo="transform opacity-0 scale-95"
                 >
-                    <Menu.Items className="absolute right-0 mt-2 w-48  rounded-md bg-white shadow-lg ">
+                    <Menu.Items className="absolute right-0 mt-2 w-48  rounded-md bg-white shadow-lg  ">
                         <div className="px-1 py-1 ">
                             <Menu.Item>
                                 {({ active }) => (
                                 <button
                                     onClick={onBlockUser}
                                     className={`${
-                                    active ? 'bg-black/30 text-white' : 'text-gray-100'
+                                    active ? 'bg-black/30 text-black' : 'text-black'
                                     } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
                                 >
                                    {conversation.blocked_at && (
@@ -82,7 +94,7 @@ export default function UserOptionsDropdown({conversation}){
                                 <button
                                     onClick={changeUserRole}
                                     className={`${
-                                    active ? 'bg-black/30 text-white' : 'text-gray-100'
+                                    active ? 'bg-black/30 text-black' : 'text-black'
                                     } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
                                 >
                                    {conversation.is_admin && (
