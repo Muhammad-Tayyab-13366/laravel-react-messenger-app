@@ -14,10 +14,11 @@
         @routes
         @viteReactRefresh
         @vite([
-            'resources/css/app.css',                     {{-- Load Tailwind first --}}
+          
             'resources/js/app.jsx',                      {{-- Main JS --}}
             "resources/js/Pages/{$page['component']}.jsx" {{-- Page-specific JS --}}
         ])
+        <!--   'resources/css/app.css',                     {{-- Load Tailwind first --}} -->
         
         @inertiaHead
     </head>
