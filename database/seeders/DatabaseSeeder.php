@@ -33,6 +33,7 @@ class DatabaseSeeder extends Seeder
             'is_admin' => false
         ]);
 
+        /*
         User::factory()->count(10)->create();
 
         for ($i=0; $i < 5; $i++) { 
@@ -60,5 +61,6 @@ class DatabaseSeeder extends Seeder
         })->values();
 
         Conversation::insertOrIgnore($conversion->toArray());
+        */
     }
 }
