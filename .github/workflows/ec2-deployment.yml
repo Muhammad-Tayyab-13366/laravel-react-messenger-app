@@ -1,0 +1,87 @@
+name: EC2Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+  runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Setup PHP 
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.3'
+        extensions: mbstring, bcmath, xml, ctype, json, tokenizer, curl, zip
+        ini-values: post_max_size=256M, upload_max_filesize=256M
+        coverage: xdebug
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20' 
+    
+    - name: Create .env file
+      run: cp .env.example .env
+
+    - name: Install PHP dependencies
+      run: composer install --no-progress --no-suggest --prefer-dist --optimize-autoloader
+
+    - name: Set Application Key
+      run: php artisan key:generate --ansi 
+
+    - name: Create storage symlink
+      run: php artisan storage:link
+
+    - name: Run mgration 
+      run: php artisan migrate --force
+
+    - name: Install Node.js dependencies
+      run: npm install  
+    
+    - name: Build assets
+      run: npm run build  
+
+    - name: Run Tests
+      run: php artisan test --env=testing --no-coverage
+
+    - name: Deploy to EC2
+      if: success()
+      uses: easingthemes/ssh-deploy@v2.1.5
+      with:
+        ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+        remote-user: ${{ secrets.EC2_USER }}
+        server-ip: ${{ secrets.EC2_SERVER_IP }}
+        remote-path: ${{ secrets.EC2_PATH }}
+        local-path: .
+        exclude-list: .github/**,tests/**,node_modules/**,vendor/**,.env
+        pre-deploy-cmd: |
+          cd ${{ secrets.EC2_PATH }}
+          git stash
+        post-deploy-cmd: |
+          cd ${{ secrets.EC2_PATH }}
+          composer install --no-dev --optimize-autoloader
+          php artisan migrate --force
+          npm install
+          npm run build
+          php artisan cache:clear
+          php artisan config:cache
+          php artisan route:cache
+          php artisan view:cache
+          sudo systemctl restart php-fpm
+          sudo systemctl restart nginx
+        debug: true
+    - name: Notify Deployment Success
+      if: success()
+      run: echo "Deployment to EC2 was successful!" 
+    - name: Notify Deployment Failure
+      if: failure()
+      run: echo "Deployment to EC2 failed." 
+
+
+    

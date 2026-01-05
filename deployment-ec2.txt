@@ -88,7 +88,56 @@ sudo systemctl restart nginx
 
 
 
+================== Supervisor Configuration ==================  
+To start rever server automatically 
+location: etc/supervisor/conf.d, file name = laravel-reverb.conf
+file content:
+                                                                          
+[program:laravel-reverb]
+process_name=%(program_name)s_%(process_num)02d
+command=php /var/www/laravel-react-messenger-app/artisan reverb:start
+autostart=true
+autorestart=true
+stopasgroup=true
+killasgroup=true
+user=ubuntu
+numprocs=1
+redirect_stderr=true
+stdout_logfile=/var/log/supervisor/reverb.log
+stopwaitsecs=3600
 
+content end:
+
+-- create log file and set permissions
+sudo touch /var/log/supervisor/reverb.log
+sudo chown ubuntu:ubuntu /var/log/supervisor/reverb.log
+
+sudo supervisorctl reread
+sudo supervisorctl update
+sudo supervisorctl start "laravel-reverb:*"
+
+location: etc/supervisor/conf.d, file name = laravel-queue.conf
+file content:
+
+[program:laravel-queue]
+process_name=%(program_name)s_%(process_num)02d
+command=php /var/www/laravel-react-messenger-app/artisan queue:work  --tries=3 --max-time=3600 --timeout=120
+autostart=true
+autorestart=true
+stopasgroup=true
+killasgroup=true
+user=ubuntu
+numprocs=1
+redirect_stderr=true
+stdout_logfile=/var/www/laravel-react-messenger-app/queue.log
+stopwaitsecs=3600
+
+content end:
+
+
+sudo supervisorctl reread
+sudo supervisorctl update
+sudo supervisorctl start "laravel-queue:*"
 
 
 
