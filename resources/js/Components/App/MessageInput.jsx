@@ -150,11 +150,11 @@ const MessageInput = ({conversation = null}) => {
                         <span className="hidden sm:inline">Send</span>
                     </button>
                 </div>
-                {!!uploadProgress && (
-                    // <progress className="progress progress-info w-full" value={uploadProgress} max="100">
+                {/* {!!uploadProgress && (
+                    <progress className="progress progress-info w-full" value={uploadProgress} max="100">
 
-                    // </progress>
-                )}
+                    </progress>
+                )} */}
                 {inputErrorMessage && (
                     <p className="text-xs text-red-400">{inputErrorMessage}</p>
                 )}
