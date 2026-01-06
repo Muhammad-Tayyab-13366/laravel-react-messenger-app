@@ -55,6 +55,8 @@ jobs:
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
+            php artisan queue:restart
+            php artisan reverb:start
             sudo systemctl reload php8.2-fpm
             sudo systemctl reload nginx
 

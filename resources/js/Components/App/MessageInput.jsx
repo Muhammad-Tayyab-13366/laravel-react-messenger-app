@@ -151,9 +151,9 @@ const MessageInput = ({conversation = null}) => {
                     </button>
                 </div>
                 {!!uploadProgress && (
-                    <progress className="progress progress-info w-full" value={uploadProgress} max="100">
+                    // <progress className="progress progress-info w-full" value={uploadProgress} max="100">
 
-                    </progress>
+                    // </progress>
                 )}
                 {inputErrorMessage && (
                     <p className="text-xs text-red-400">{inputErrorMessage}</p>
